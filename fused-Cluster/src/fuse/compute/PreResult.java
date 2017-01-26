@@ -15,10 +15,10 @@ public class PreResult {
 	public static HashMap<Integer, ArrayList<Centroid>> Q_CentrMap = null;
 	public static HashMap<Integer, HashMap<Integer, HashMap<Integer, Double>>> Q_SimMap = null;
 	//文档列表信息从上面这个第二个的keyset得到
-	/**
+/*	*//**
 	 * 中途还需要：
 	 * 			1、q - docid - 融合原始分数
-	 */
-	public static HashMap<Integer, HashMap<Integer, Double>> Q_OriginScoreMap = null;
+	 *//*
+	public static HashMap<Integer, HashMap<Integer, Double>> Q_OriginScoreMap = null;*/
 	
 }

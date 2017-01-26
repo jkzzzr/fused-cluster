@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import OriginData.DataInput_My;
 import fuse.structure.ScoreBuilder;
 
 /**
@@ -23,7 +24,7 @@ public class ClusterFuse {
 	//所有融合分数之和
 	private double pdq_2 = -1;
 	//pcq分数<br>collection - score
-	private ArrayList<Double> pcq_ = new ArrayList<Double>();
+	private ArrayList<Double> pcq_ = null;
 	//结果列表
 	public HashMap<Integer, Double> result = new HashMap<Integer, Double>();
 	public ClusterFuse(int qid){
@@ -31,12 +32,12 @@ public class ClusterFuse {
 	}
 	public void init(Integer qid){
 		this.qid = qid;
-		doclist = null;//TODO
+		doclist = DataInput_My.Input_QD.get(qid);
 		fusescore_Origin = ScoreBuilder.getFusescore_Origin(this.qid);
 		//计算pdq_2
 		double temp = 0.0;
-		for (Double double1 : fusescore_Origin.values()){
-			temp +=double1;
+		for (Entry<Integer, Double> entry: fusescore_Origin.entrySet()){
+			temp +=entry.getValue();
 		}
 		pdq_2 = temp;
 		pcq_ = ScoreBuilder.getPcq(this.qid);
@@ -60,7 +61,7 @@ public class ClusterFuse {
 	private double compute_Part2(Integer docid) {
 		ArrayList<Double> tempPdc = ScoreBuilder.getPdc(qid).get(docid);
 		double result = 0.0;
-		for (int collectionNo = 0; collectionNo < pcq_.size(); collectionNo++){
+		for (int collectionNo = 0; collectionNo < tempPdc.size(); collectionNo++){
 			double score1 = pcq_.get(collectionNo);
 			double score2 = tempPdc.get(collectionNo);
 			double tempresult = score1 * score2;

@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import OriginData.DataInput_My;
 import filter.structure.Centroid;
 import fuse.compute.PreResult;
 
@@ -14,11 +15,11 @@ public class ScoreBuilder {
 	 *  P（c|q）<br>某类别在查询下的得分<br>qid - collection - score
 	 */
 	public static HashMap<Integer, ArrayList<Double>> pcq = new HashMap<Integer, ArrayList<Double>>();
-	/**
+/*	*//**
 	 * 融合得分 qid - docid - score
-	 */
+	 *//*
 	public static HashMap<Integer, HashMap<Integer, Double>> fusescore_Origin = new HashMap<Integer, HashMap<Integer,Double>>();	
-	
+*/	
 	/*P(d|c) <br>qid - doc - collection - score
 	 */
 	public static HashMap<Integer, HashMap<Integer,ArrayList<Double>>> pdc = new HashMap<Integer, HashMap<Integer,ArrayList<Double>>>();
@@ -45,7 +46,7 @@ public class ScoreBuilder {
 	 * @return collection - score
 	 */
 	private static ArrayList<Double> createPcq(Integer qid) {
-		HashMap<Integer, Double> originresult = PreResult.Q_OriginScoreMap.get(qid);
+		HashMap<Integer, Double> originresult = DataInput_My.Input_dS.get(qid);
 		ArrayList<Centroid> alist = PreResult.Q_CentrMap.get(qid);
 		ArrayList<Double> result = new ArrayList<Double>();
 		double sumValue = 0.0;
@@ -55,7 +56,9 @@ public class ScoreBuilder {
 			double multiValue = 0.0;
 			for (Integer tempdoc : tempDocList){
 				double tempscore = originresult.get(tempdoc);
-				multiValue *=tempscore;
+				if (tempscore != 0){
+					multiValue *=tempscore;
+				}
 			}
 			result.add(i, multiValue);
 			sumValue +=multiValue;
@@ -69,15 +72,17 @@ public class ScoreBuilder {
 	}
 
 	public static HashMap<Integer, Double> getFusescore_Origin(Integer qid) {
-		return fusescore_Origin.get(qid);
+		HashMap<Integer, Double> result = DataInput_My.Input_dS.get(qid);
+		return result;
 	}
 
-	public static  HashMap<Integer,ArrayList<Double>> getPdc(Integer qid) {
+	public synchronized static  HashMap<Integer,ArrayList<Double>> getPdc(Integer qid) {
 		 HashMap<Integer,ArrayList<Double>> result = null;
 		if (pdc.containsKey(qid)){
 			result = pdc.get(qid);
 		}else {
 			result = createPdc(qid);
+			pdc.put(qid, result);
 		}
 		return result;
 	}
@@ -93,6 +98,7 @@ public class ScoreBuilder {
 		HashMap<Integer, HashMap<Integer, Double>> siMap = PreResult.Q_SimMap.get(qid);
 		//所有文档列表
 		Set<Integer> docSet = siMap.keySet();
+		
 		for (Integer docid : docSet){
 			//便利所有文档，计算所有文档的分子
 			ArrayList<Double> tempresult = new ArrayList<Double>();
@@ -116,9 +122,10 @@ public class ScoreBuilder {
 		}
 		//便利所有文档，统计它与各个数据集之间的距离，并记录总和
 		for (Entry<Integer,ArrayList<Double>> entry : result.entrySet()){
-			for (int i = 0; i < entry.getValue().size(); i++){
+			ArrayList<Double> tempal = entry.getValue();
+			for (int i = 0; i < tempal.size(); i++){
 				double dd = cenSum.get(i);
-				dd += entry.getValue().get(i);
+				dd += tempal.get(i);
 				cenSum.set(i, dd);
 			}
 		}
